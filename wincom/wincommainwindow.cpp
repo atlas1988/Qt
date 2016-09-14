@@ -11,8 +11,16 @@ WincomMainWindow::WincomMainWindow(QWidget *parent) :
    //   定义串口对象，并传递参数在构造函数对其进行初始化
     myCom = new Win_QextSerialPort("COM4",myComSetting,QextSerialBase::EventDriven);
   //    以读写的方式打开串口
-    myCom ->open(QIODevice::ReadWrite);
-
+ //   myCom ->open(QIODevice::ReadWrite);
+    if(myCom->open(QIODevice::ReadWrite))    //打开串口
+      {
+          myCom->setBaudRate(BAUD115200);   //设置波特率
+          myCom->setDataBits(DATA_8);     //设置数据位
+          myCom->setStopBits(STOP_1);     //设置停止位
+          myCom->setParity(PAR_NONE);     //设置校验位
+          myCom->setFlowControl(FLOW_OFF);//设置流控制
+          myCom->setTimeout(1000);         //设置超时时间
+      }
    //    信号跟槽函数关联，当串口缓冲区有数据时，进行串口操作
     connect(myCom,SIGNAL(readyRead()),this,SLOT(readMyCom()));
 
