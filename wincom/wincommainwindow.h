@@ -21,6 +21,9 @@ private:
     Win_QextSerialPort *myCom;  //声明对象
 private slots:
     void readMyCom();//声明对象 槽函数
+    void on_openMyComBtn_clicked();
+    void on_closeMyComBtn_clicked();
+    void on_sendMsgBtn_clicked();
 };
 
 #endif // WINCOMMAINWINDOW_H
