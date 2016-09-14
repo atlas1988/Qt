@@ -40,7 +40,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>50</x>
       <y>330</y>
       <width>201</width>
       <height>16</height>
@@ -53,8 +53,8 @@
    <widget class="QPushButton" name="openMyComBtn">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>80</y>
+      <x>380</x>
+      <y>250</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -66,8 +66,8 @@
    <widget class="QPushButton" name="closeMyComBtn">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>180</y>
+      <x>510</x>
+      <y>250</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -98,6 +98,191 @@
       <height>20</height>
      </rect>
     </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>60</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>端口：</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>90</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>波特率：</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>120</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>数据位：</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>150</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>奇偶校验</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>180</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>停止位：</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="portNameComboBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>50</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>COM1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>COM4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>COM16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>COM5</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="baudRateComboBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>80</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>9600</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>115200</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="dataBitsComboBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>110</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="parityomboBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>140</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>无</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>奇</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>偶</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="stopBitsomboBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>170</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

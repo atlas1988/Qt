@@ -1,4 +1,4 @@
-# Qt
+# Qt  Qt5.7.0
 QtSerial
 wincom 为windows下的串口工具
 参考网站：

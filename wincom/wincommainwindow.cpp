@@ -25,26 +25,47 @@ WincomMainWindow::~WincomMainWindow()
 
 void WincomMainWindow::on_openMyComBtn_clicked()
 {
-    // 定义一个结构体，用来存放串口各个参数
+    // 获取串口名
+    QString portName = ui->portNameComboBox->currentText();
     struct PortSettings myComSetting = {BAUD115200,DATA_8,PAR_NONE,STOP_1,FLOW_OFF,500};
    //   定义串口对象，并传递参数在构造函数对其进行初始化
-    myCom = new Win_QextSerialPort("COM4",myComSetting,QextSerialBase::EventDriven);
+    myCom = new Win_QextSerialPort(portName,myComSetting,QextSerialBase::EventDriven);
   //    以读写的方式打开串口
- //   myCom ->open(QIODevice::ReadWrite);
-    if(myCom->open(QIODevice::ReadWrite))    //打开串口
-      {
-          myCom->setBaudRate(BAUD115200);   //设置波特率
-          myCom->setDataBits(DATA_8);     //设置数据位
-          myCom->setStopBits(STOP_1);     //设置停止位
-          myCom->setParity(PAR_NONE);     //设置校验位
-          myCom->setFlowControl(FLOW_OFF);//设置流控制
-          myCom->setTimeout(500);         //设置超时时间
-      }
+    myCom ->open(QIODevice::ReadWrite);
+   // 根据组合框内容对串口进行设置
+    // 设置波特率
+    if(ui->baudRateComboBox->currentText() == tr("9600"))
+        myCom->setBaudRate(BAUD9600);
+    else if(ui->baudRateComboBox->currentText() == tr("115200"))
+        myCom->setBaudRate(BAUD115200);
+    // 设置数据位
+     if(ui->dataBitsComboBox->currentText() == tr("无"))
+        myCom->setParity(PAR_NONE);
+     else if(ui->dataBitsComboBox->currentText() == tr("奇"))
+        myCom->setParity(PAR_ODD);
+     else if(ui->parityomboBox->currentText() == tr("偶"))
+         myCom->setParity(PAR_EVEN);
+     // 设置停止位
+     if(ui->stopBitsomboBox->currentText() == tr("1"))
+         myCom->setStopBits(STOP_1);
+     else if(ui->stopBitsomboBox->currentText() == tr("2"))
+         myCom->setStopBits(STOP_2);
+     // 设置数据流控制 我们使用无数据流控制默认设置
+     myCom->setFlowControl(FLOW_OFF);
+     // 设置延时
+     myCom->setTimeout(500);
+
    //    信号跟槽函数关联，当串口缓冲区有数据时，进行串口操作
     connect(myCom,SIGNAL(readyRead()),this,SLOT(readMyCom()));
     ui->openMyComBtn->setEnabled(false); // 打开串口后 “打开串口“按钮不可用
     ui->closeMyComBtn->setEnabled(true); // 打开串口后  "关闭串口"按钮可用
     ui->sendMsgBtn->setEnabled(true);   // 打开串口后 “发送数据”按钮可用
+    // 设置各个组合框不可用
+    ui->baudRateComboBox->setEnabled(false);
+    ui->dataBitsComboBox->setEnabled(false);
+    ui->parityomboBox->setEnabled(false);
+    ui->stopBitsomboBox->setEnabled(false);
+    ui->portNameComboBox->setEnabled(false);
 }
 
 void WincomMainWindow::on_closeMyComBtn_clicked()
@@ -53,6 +74,12 @@ void WincomMainWindow::on_closeMyComBtn_clicked()
     ui->openMyComBtn->setEnabled(true); //关闭串口后 “打开串口”按钮可用
     ui->closeMyComBtn->setEnabled(false); // 关闭串口后“关闭串口”按钮不可用
     ui->sendMsgBtn->setEnabled(false); // 关闭串口后“发送数据”按钮不可用
+    //设置各个组合框不可用
+    ui->baudRateComboBox->setEnabled(true);
+    ui->dataBitsComboBox->setEnabled(true);
+    ui->parityomboBox->setEnabled(true);
+    ui->stopBitsomboBox->setEnabled(true);
+    ui->portNameComboBox->setEnabled(true);
 }
 
 void WincomMainWindow::on_sendMsgBtn_clicked()
