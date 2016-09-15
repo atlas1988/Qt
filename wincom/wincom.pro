@@ -24,3 +24,4 @@ HEADERS  += wincommainwindow.h \
     win_qextserialport.h
 
 FORMS    += wincommainwindow.ui
+RC_FILE += wincom.rc
