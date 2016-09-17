@@ -16,12 +16,18 @@ SOURCES += main.cpp\
         wincommainwindow.cpp \
     qextserialbase.cpp \
     qextserialport.cpp \
-    win_qextserialport.cpp
+    win_qextserialport.cpp \
+    aboutdialog.cpp
 
 HEADERS  += wincommainwindow.h \
     qextserialbase.h \
     qextserialport.h \
-    win_qextserialport.h
+    win_qextserialport.h \
+    aboutdialog.h
 
-FORMS    += wincommainwindow.ui
+FORMS    += wincommainwindow.ui \
+    aboutdialog.ui
 RC_FILE += wincom.rc
+
+RESOURCES += \
+    resource/resource.qrc

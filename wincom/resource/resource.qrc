@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>add.png</file>
+        <file>cleanport.png</file>
+        <file>clearbytes.png</file>
+        <file>edit-clear.png</file>
+        <file>exit.png</file>
+        <file>header.bmp</file>
+        <file>lcd.bmp</file>
+        <file>linuxico.bmp</file>
+        <file>loadfile.png</file>
+        <file>logo.png</file>
+        <file>mesage.png</file>
+        <file>mycom.ico</file>
+        <file>open.png</file>
+        <file>pause.png</file>
+        <file>reload.png</file>
+        <file>resource.qrc</file>
+        <file>save.png</file>
+        <file>send.png</file>
+        <file>stop.png</file>
+        <file>time.png</file>
+        <file>wincom.ICO</file>
+        <file>write2file.png</file>
+        <file>yafeilinux.PNG</file>
+    </qresource>
+</RCC>
