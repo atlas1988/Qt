@@ -14,7 +14,7 @@
 // 延时 TIME_OUT串口读写延时
 #define TIME_OUT        10
 // 读取定时器计时间隔 200ms 读取定时器是我们读取串口缓存的延时
-#define TIMER_INERVAL   200
+#define TIMER_INTERVAL   200
 //连续发送定时计时间隔 200ms
 #define OBO_TIMER_INTERVAL  200
 // 载入文件时如果文件大小超过TIP_FILE_SIZE字节提示文件过大是否继续打开

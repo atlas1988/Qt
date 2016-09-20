@@ -7,11 +7,20 @@ WincomMainWindow::WincomMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     startInit(); //初始化参数
+    myCom = NULL;
+ //左下角显示状态
+    ui->statusBar->showMessage(tr("欢迎使用串口工具！"));
 
 }
 
 WincomMainWindow::~WincomMainWindow()
 {
+    if(myCom != NULL){
+        if(myCom->isOpen()){
+            myCom->close();
+        }
+        delete myCom;
+    }
     delete ui;
 }
 
@@ -41,11 +50,11 @@ void WincomMainWindow::startInit()
     ui->actionAdd->setEnabled(true); //使添加端口可以使用
 
     //初始化读取定时器计时间隔
-    timerdly = TIMER_INERVAL;
+    timerdly = TIMER_INTERVAL;
     //初始化连续发送计时器时间间隔
     obotimerdly = OBO_TIMER_INTERVAL;
     //设置读取计时器
-    timer = new QTimer(this);
+    //timer = new QTimer(this);
     //connect(timer,SIGNAL(timeout()),this,SLOT(readMyCom()));
     //设置连续发送计时器
     obotimer = new QTimer(this);
@@ -74,25 +83,24 @@ void WincomMainWindow::readMyCom()
 {
     //  读取串口缓冲区的所有数据给临时变量 tmp
     QByteArray recvTemp = myCom->readAll();
+    QString buf;
     if(!recvTemp.isEmpty()){// 串口有数据
         // 判断写入文件名是否有定义
-        if(write2fileName.isEmpty() && !recvTemp.isEmpty()){// 不保存文件
-            ui->textBrowser->setTextColor(Qt::lightGray);
-            ui->textBrowser->append(tr("接收： "));
-            ui->textBrowser->setTextColor(Qt::black);
-            //  将串口的数据显示在窗口的文本浏览器中
-             ui->textBrowser->append(tr("接收： "));
-            //ui->textBrowser->append(temp);
-             ui->textBrowser->insertPlainText(recvTemp);
-        /*    if(ui->displayCharRBtn->isChecked()){// 字符串形式显示
-                ui->textBrowser->append(temp);
-            }else if(ui->displayHexRBtn->isChecked()){// 十六进制显示HEX
-                ui->textBrowser->append(tr(" ")+temp.toHex());
-            }else{// 以十进制显示
-                ui->textBrowser->append(tr(" ")+temp.toInt());
+        ui->textBrowser->setTextColor(Qt::black);
+        if(ui->displayCharRBtn->isChecked()){// 字符串形式显示
+                buf = recvTemp;
+        }else if(ui->displayHexRBtn->isChecked()){// 十六进制显示HEX
+            QString str;
+            for(int i=0;i<recvTemp.count();i++){
+                QString s;
+                s.sprintf("0x%02x,",(unsigned char)recvTemp.at(i));
+                buf +=s;
             }
-          */
-        }else{
+          }else{//
+                buf = recvTemp;
+            }
+
+        if(!write2fileName.isEmpty()){
             QFile file(write2fileName);
              // 如果打开失败则返回给出提示并退出函数
             if(!file.open(QFile::Append | QIODevice::Text)){
@@ -100,82 +108,60 @@ void WincomMainWindow::readMyCom()
                 return;
             }
             QTextStream out(&file);
-            out<<recvTemp<<endl;
+            out<<buf;
             file.close();
-            ui->textBrowser->append(tr("接收:数据已经写入文件 %1").arg(write2fileName));
+            //左下角显示状态
+            ui->statusBar->showMessage(tr("接收:数据已经写入文件 %1").arg(write2fileName));
         }
-    }
+    //ui->textBrowser->setText(ui->textBrowser->document()->toPlainText()+buf);
+    ui->textBrowser->insertPlainText(buf);
+    QTextCursor cursor = ui->textBrowser->textCursor(); // 获取显示窗口的光标位置
+    cursor.movePosition(QTextCursor::End);//将光标移到到末尾
+    ui->textBrowser->setTextCursor(cursor);
+    // 显示读取到的数据
     ui->readLcdNumber->display(ui->readLcdNumber->value() + recvTemp.size());
     ui->statusBar->showMessage(tr("成功读取%1字节数据").arg(recvTemp.size()));
 
+    }
 }
-// 连续发送数据
+// 发送数据
 void WincomMainWindow::sendMsg()
 {
-    myCom->write(ui->sendMsgLineEdit->text().toLatin1());
-    ui->textBrowser->append(tr("发送：") + ui->sendMsgLineEdit->text());
+    QByteArray sendBuf;
+    if(ui->sendHexCheckBox->isChecked()){
+        QString str;
+        bool ok;
+        char data;
+        QStringList list;
+        str = ui->sendMsgLineEdit->text();
+        list = str.split(" ");
+        for(int i=0;i<list.count();i++){
+            if(list.at(i) == " ")
+                continue;
+            if(list.at(i).isEmpty())
+                continue;
+            data = (char)list.at(i).toInt(&ok,16);
+            if(!ok){
+                QMessageBox::information(this, tr("提示消息"), tr("输入数据格式有误"), QMessageBox::Ok);
+                if(obotimer != NULL)
+                    obotimer->stop();
+                ui->sendMsgBtn->setText(tr("发 送"));
+              //  ui->sendmsgBtn->setIcon(QIcon(":new/prefix1/src/send.png"));
+                return;
+            }
+            sendBuf.append(data);
+        }
+    }
+
+    sendBuf = ui->sendMsgLineEdit->text().toLocal8Bit();
+    // 发送数据
+    myCom->write(sendBuf);
     ui->statusBar->showMessage(tr("发送数据成功"));
-}
-/*
-void WincomMainWindow::on_openMyComBtn_clicked()
-{
-    // 获取串口名
-    QString portName = ui->portNameComboBox->currentText();
-    struct PortSettings myComSetting = {BAUD115200,DATA_8,PAR_NONE,STOP_1,FLOW_OFF,500};
-   //   定义串口对象，并传递参数在构造函数对其进行初始化
-    myCom = new Win_QextSerialPort(portName,myComSetting,QextSerialBase::EventDriven);
-  //    以读写的方式打开串口
-    myCom ->open(QIODevice::ReadWrite);
-   // 根据组合框内容对串口进行设置
-    // 设置波特率
-    if(ui->baudRateComboBox->currentText() == tr("9600"))
-        myCom->setBaudRate(BAUD9600);
-    else if(ui->baudRateComboBox->currentText() == tr("115200"))
-        myCom->setBaudRate(BAUD115200);
-    // 设置数据位
-     if(ui->dataBitsComboBox->currentText() == tr("无"))
-        myCom->setParity(PAR_NONE);
-     else if(ui->dataBitsComboBox->currentText() == tr("奇"))
-        myCom->setParity(PAR_ODD);
-     else if(ui->parityomboBox->currentText() == tr("偶"))
-         myCom->setParity(PAR_EVEN);
-     // 设置停止位
-     if(ui->stopBitsomboBox->currentText() == tr("1"))
-         myCom->setStopBits(STOP_1);
-     else if(ui->stopBitsomboBox->currentText() == tr("2"))
-         myCom->setStopBits(STOP_2);
-     // 设置数据流控制 我们使用无数据流控制默认设置
-     myCom->setFlowControl(FLOW_OFF);
-     // 设置延时
-     myCom->setTimeout(500);
-
-   //    信号跟槽函数关联，当串口缓冲区有数据时，进行串口操作
-    connect(myCom,SIGNAL(readyRead()),this,SLOT(readMyCom()));
-    ui->openMyComBtn->setEnabled(false); // 打开串口后 “打开串口“按钮不可用
-    ui->closeMyComBtn->setEnabled(true); // 打开串口后  "关闭串口"按钮可用
-    ui->sendMsgBtn->setEnabled(true);   // 打开串口后 “发送数据”按钮可用
-    // 设置各个组合框不可用
-    ui->baudRateComboBox->setEnabled(false);
-    ui->dataBitsComboBox->setEnabled(false);
-    ui->parityomboBox->setEnabled(false);
-    ui->stopBitsomboBox->setEnabled(false);
-    ui->portNameComboBox->setEnabled(false);
+    //ui->textBrowser->append(tr("发送：") + ui->sendMsgLineEdit->text());
+    // 界面控制
+    ui->textBrowser->setTextColor(Qt::lightGray);
 }
 
-void WincomMainWindow::on_closeMyComBtn_clicked()
-{
-    myCom->close(); // 关闭串口， 改函数在 win_qextserialport.cpp文件中定义
-    ui->openMyComBtn->setEnabled(true); //关闭串口后 “打开串口”按钮可用
-    ui->closeMyComBtn->setEnabled(false); // 关闭串口后“关闭串口”按钮不可用
-    ui->sendMsgBtn->setEnabled(false); // 关闭串口后“发送数据”按钮不可用
-    //设置各个组合框不可用
-    ui->baudRateComboBox->setEnabled(true);
-    ui->dataBitsComboBox->setEnabled(true);
-    ui->parityomboBox->setEnabled(true);
-    ui->stopBitsomboBox->setEnabled(true);
-    ui->portNameComboBox->setEnabled(true);
-}
-*/
 void WincomMainWindow::on_sendMsgBtn_clicked()
 {
 
@@ -191,17 +177,11 @@ void WincomMainWindow::on_sendMsgBtn_clicked()
         QMessageBox::information(this,tr("提示消息"),tr("没有需要发送的数据"),QMessageBox::Ok);
         return;
     }
-    // 发送数据 将数据写入串口
-    myCom->write(ui->sendMsgLineEdit->text().toLatin1());
-    ui->statusBar->showMessage(tr("发送数据成功"));
-    //界面控制
-    ui->textBrowser->setTextColor(Qt::lightGray);
-    ui->textBrowser->append(tr("发送： "));
-    ui->textBrowser->setTextColor(Qt::black);
-    ui->textBrowser->append(ui->sendMsgLineEdit->text());
-    //如果不是连续发送
+     //如果不是连续发送
     if(!ui->continueSendCheckBox->isChecked()){
         ui->sendMsgLineEdit->setFocus();
+        // 发送数据
+        sendMsg();
     }else{//连续发送
         obotimer->start(obotimerdly);
         ui->sendMsgBtn->setText(tr("暂停"));
@@ -230,7 +210,10 @@ void WincomMainWindow::on_actionOpen_triggered()
 {
     QString portName = ui->portNameComboBox->currentText();// 获取串口名
     // 这里使用QextSerialBase::Polling （QextSerialBase::QueryMode） 轮询的模式 // EventDriven
+   // struct PortSettings myComSetting = {BAUD9600,DATA_8,PAR_NONE,STOP_1,FLOW_OFF, 500};
     myCom =new Win_QextSerialPort(portName,QextSerialBase::EventDriven);
+    //    信号跟槽函数关联，当串口缓冲区有数据时，进行串口操作
+    connect(myCom,SIGNAL(readyRead()),this,SLOT(readMyCom()));
     if(myCom->open(QIODevice::ReadWrite)){// 以读写的方式打开串口
         QMessageBox::information(this, tr("打开成功"), tr("已成功打开串口 ") + portName, QMessageBox::Ok);
       }else{
@@ -259,6 +242,7 @@ void WincomMainWindow::on_actionOpen_triggered()
         myCom->setParity(PAR_ODD);
      else if(ui->parityComboBox->currentText() == tr("偶"))
          myCom->setParity(PAR_EVEN);
+//     myCom->setParity(PAR_NONE);
      // 设置停止位
      if(ui->stopBitsComboBox->currentText() == tr("1"))
          myCom->setStopBits(STOP_1);
@@ -278,10 +262,9 @@ void WincomMainWindow::on_actionOpen_triggered()
     setComboxEnable(false);
     setActionsEnable(true);
     //开启读取定时器
-    timer->start(timerdly);
+   // timer->start(timerdly);
 
-    //    信号跟槽函数关联，当串口缓冲区有数据时，进行串口操作
-    connect(myCom,SIGNAL(readyRead()),this,SLOT(readMyCom()));
+
     ui->statusBar->showMessage(tr("打开串口成功"));
 }
 // 关闭串口
@@ -377,12 +360,12 @@ void WincomMainWindow::on_actionWriteFile_triggered()
             ui->actionWriteFile->setChecked(false);
         }else{
             write2fileName = filename;
-            ui->textBrowser->setEnabled(false);
+            //ui->textBrowser->setEnabled(false);
             ui->actionWriteFile->setToolTip(tr("停止写入到文件"));
         }
     }else{
         write2fileName.clear();
-        ui->textBrowser->setEnabled(true);
+        //ui->textBrowser->setEnabled(true);
         ui->actionWriteFile->setToolTip(tr("将读取数据写入到文件"));
     }
 }
@@ -404,11 +387,7 @@ void WincomMainWindow::on_actionClearCom_triggered()
 // 退出程序
 void WincomMainWindow::on_actionExit_triggered()
 {
-    if(myCom->isOpen()){
-        myCom->close();
-        delete myCom;
-    }
-    this->close();
+   this->close();
 }
 // 单击连续发送checkBox
 void WincomMainWindow::on_continueSendCheckBox_clicked()
@@ -424,7 +403,7 @@ void WincomMainWindow::on_continueSendCheckBox_clicked()
     }
 }
 //调整连续发送时间间隔
-void WincomMainWindow::on_intervalSpinBox_valueChanged(int arg1)
+void WincomMainWindow::on_intervalSpinBox_valueChanged(int)
 {
     obotimerdly = ui->intervalSpinBox->value();
 }
